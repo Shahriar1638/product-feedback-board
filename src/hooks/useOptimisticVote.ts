@@ -23,8 +23,6 @@ export function useOptimisticVote({
   const [optimisticDown, setOptimisticDown] = useState(initialDownvotes);
   const [pending, setPending] = useState(false);
 
-  const net = optimisticUp - optimisticDown;
-
   const vote = useCallback(
     async (voteType: "up" | "down"): Promise<VoteResult> => {
       if (pending) return { ok: false };
@@ -81,5 +79,5 @@ export function useOptimisticVote({
     [feedbackId, userVote, optimisticUp, optimisticDown, pending]
   );
 
-  return { userVote, net, pending, vote };
+  return { userVote, optimisticUp, optimisticDown, pending, vote };
 }

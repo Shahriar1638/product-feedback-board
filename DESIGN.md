@@ -121,17 +121,16 @@ The dark `--ink` background is the "board"; paper cards are pinned to it with a 
 - `--paper` background, `--graphite` text, 12px radius, 20px padding.
 - Top row: category badge (pill, tinted per §1.1) + priority indicator — priority is a set of 1/2/3 filled dots in `--signal-amber`, not a text label, echoing a signal-strength meter.
 - Title: Display 1.125rem/600.
-- Description: Body, clamped to 3 lines with ellipsis, expand-on-click is out of scope for MVP.
+- Description: Body, clamped to 3 lines with ellipsis, "See more" link opens a centered modal with the full content.
 - Footer row: `VoteButtons` (left) + relative timestamp in Mono, right-aligned, e.g. `2h ago`.
 - Delete trigger: a small icon button, top-right corner, opacity 0 at rest → 1 on card hover/focus (desktop only; always visible on touch).
 
 ### 3.4 Vote Buttons — `src/components/feedback/VoteButtons.tsx` (the signature element)
 
-- Structure: `[▲ button] [flip-counter] [▼ button]`, horizontal, Mono digits.
-- Counter renders as individual digit cells, each with a static background `rgba(16,20,28,0.06)` on paper, radius 4px, 2px gap between cells.
-- Net count = `upvotes - downvotes`; negative values render with `--alert-rust` digit color, positive with `--current-teal`, zero with `--graphite`.
+- Structure: `[▲ counter] [▼ counter]`, horizontal, Mono digits — upvote and downvote counts are displayed separately rather than as a single net number.
+- Upvote count renders in `--current-teal`, downvote count in `--alert-rust`.
+- Each counter renders as individual digit cells, each with a static background `rgba(16,20,28,0.06)` on paper, radius 4px, 2px gap between cells.
 - Active vote state (the button matching the user's current vote) gets a filled background in its accent color; the other stays outlined.
-- See §4.4 for the flip animation itself — this component owns the GSAP timeline.
 
 ### 3.5 Feedback Form — `src/components/feedback/FeedbackForm.tsx`
 

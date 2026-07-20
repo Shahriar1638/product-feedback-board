@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -9,8 +9,16 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function BoardLoadSequence({ children }: { children: React.ReactNode }) {
   const scope = useRef<HTMLDivElement>(null);
+  const [ready, setReady] = useState(false);
+
+  // Wait for hydration to finish before GSAP touches the DOM
+  useEffect(() => {
+    setReady(true);
+  }, []);
 
   useGSAP(() => {
+    if (!ready) return;
+
     const mm = gsap.matchMedia();
 
     mm.add("(prefers-reduced-motion: no-preference)", () => {
@@ -35,7 +43,7 @@ export default function BoardLoadSequence({ children }: { children: React.ReactN
     mm.add("(prefers-reduced-motion: reduce)", () => {
       gsap.set(".board-header, .board-filters, .feedback-card", { opacity: 1, y: 0 });
     });
-  }, { scope });
+  }, { scope, dependencies: [ready] });
 
   return <div ref={scope}>{children}</div>;
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "motion/react";
+import Modal from "@/components/ui/Modal";
 import type { IFeedback } from "@/models/Feedback.model";
 import VoteButtons from "./VoteButtons";
 import DeleteConfirmModal from "./DeleteConfirmModal";
@@ -27,8 +28,65 @@ function timeAgo(date: Date): string {
   return `${days}d ago`;
 }
 
+const MAX_DESC_LENGTH = 125;
+
 export default function FeedbackCard({ feedback }: FeedbackCardProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
+
+  const isLong = feedback.description.length > MAX_DESC_LENGTH;
+  const truncated = isLong
+    ? feedback.description.slice(0, MAX_DESC_LENGTH).trimEnd()
+    : feedback.description;
+
+  const cardContent = (
+    <>
+      <div className="flex items-center gap-2">
+        <span
+          className={`rounded-full px-2.5 py-0.5 font-mono text-[0.625rem] font-medium uppercase tracking-wider ${CATEGORY_COLORS[feedback.category]}`}
+        >
+          {feedback.category}
+        </span>
+        <span className="flex gap-0.5">
+          {Array.from({ length: ["Low", "Medium", "High"].indexOf(feedback.priority) + 1 }).map(
+            (_, i) => (
+              <span key={i} className="h-1.5 w-1.5 rounded-full bg-signal-amber" />
+            )
+          )}
+        </span>
+      </div>
+
+      <h3 className="font-display text-lg font-semibold leading-tight text-graphite">
+        {feedback.title}
+      </h3>
+
+      <div className="h-20 overflow-hidden font-body text-sm leading-relaxed text-graphite/70">
+        {truncated}
+        {isLong && !detailOpen && (
+          <span>
+            ...{'\u00A0'}
+            <button
+              onClick={() => setDetailOpen(true)}
+              className="inline font-mono text-[0.6875rem] uppercase tracking-wider text-current-teal transition-colors hover:text-current-teal/70"
+            >
+              see more
+            </button>
+          </span>
+        )}
+      </div>
+
+      <div className="mt-auto flex items-center justify-between pt-2">
+        <VoteButtons
+          feedbackId={String(feedback._id)}
+          initialUpvotes={feedback.upvotes}
+          initialDownvotes={feedback.downvotes}
+        />
+        <span className="font-mono text-[0.6875rem] text-fog">
+          {timeAgo(feedback.createdAt)}
+        </span>
+      </div>
+    </>
+  );
 
   return (
     <>
@@ -48,40 +106,21 @@ export default function FeedbackCard({ feedback }: FeedbackCardProps) {
           </svg>
         </button>
 
-        <div className="flex items-center gap-2">
-          <span
-            className={`rounded-full px-2.5 py-0.5 font-mono text-[0.625rem] font-medium uppercase tracking-wider ${CATEGORY_COLORS[feedback.category]}`}
-          >
-            {feedback.category}
-          </span>
-          <span className="flex gap-0.5">
-            {Array.from({ length: ["Low", "Medium", "High"].indexOf(feedback.priority) + 1 }).map(
-              (_, i) => (
-                <span key={i} className="h-1.5 w-1.5 rounded-full bg-signal-amber" />
-              )
-            )}
-          </span>
-        </div>
-
-        <h3 className="font-display text-lg font-semibold leading-tight text-graphite">
-          {feedback.title}
-        </h3>
-
-        <p className="line-clamp-3 font-body text-sm leading-relaxed text-graphite/70">
-          {feedback.description}
-        </p>
-
-        <div className="mt-auto flex items-center justify-between pt-2">
-          <VoteButtons
-            feedbackId={String(feedback._id)}
-            initialUpvotes={feedback.upvotes}
-            initialDownvotes={feedback.downvotes}
-          />
-          <span className="font-mono text-[0.6875rem] text-fog">
-            {timeAgo(feedback.createdAt)}
-          </span>
-        </div>
+        {cardContent}
       </motion.div>
+
+      <Modal open={detailOpen} onClose={() => setDetailOpen(false)} labelledBy="detail-title">
+        <div className="flex flex-col gap-4">
+          <h2 id="detail-title" className="sr-only">{feedback.title}</h2>
+          {cardContent}
+          <button
+            onClick={() => setDetailOpen(false)}
+            className="mt-2 w-full rounded-[var(--radius-button)] border border-fog/20 py-2 font-mono text-xs uppercase tracking-wider text-fog transition-colors hover:border-fog/40 hover:text-paper"
+          >
+            Close
+          </button>
+        </div>
+      </Modal>
 
       <DeleteConfirmModal
         feedbackId={String(feedback._id)}
