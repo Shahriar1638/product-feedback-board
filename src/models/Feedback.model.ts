@@ -12,6 +12,7 @@ export interface IFeedback extends Document {
   voteCount: number;
   createdAt: Date;
   updatedAt: Date;
+  userVote?: "up" | "down" | null;
 }
 
 const PRIORITY_WEIGHT: Record<Priority, number> = {

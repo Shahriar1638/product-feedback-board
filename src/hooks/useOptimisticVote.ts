@@ -6,6 +6,7 @@ interface UseOptimisticVoteOptions {
   feedbackId: string;
   initialUpvotes: number;
   initialDownvotes: number;
+  initialUserVote?: "up" | "down" | null;
 }
 
 interface VoteResult {
@@ -17,8 +18,9 @@ export function useOptimisticVote({
   feedbackId,
   initialUpvotes,
   initialDownvotes,
+  initialUserVote,
 }: UseOptimisticVoteOptions) {
-  const [userVote, setUserVote] = useState<"up" | "down" | null>(null);
+  const [userVote, setUserVote] = useState<"up" | "down" | null>(initialUserVote ?? null);
   const [optimisticUp, setOptimisticUp] = useState(initialUpvotes);
   const [optimisticDown, setOptimisticDown] = useState(initialDownvotes);
   const [pending, setPending] = useState(false);

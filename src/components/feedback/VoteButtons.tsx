@@ -10,14 +10,15 @@ interface VoteButtonsProps {
   feedbackId: string;
   initialUpvotes: number;
   initialDownvotes: number;
+  initialUserVote?: "up" | "down" | null;
 }
 
 function FlipDigit({ value }: { value: string }) {
   return (
-    <span
-      className="vote-digit inline-flex h-7 w-5 items-center justify-center rounded bg-ink/[0.06] font-mono text-sm font-medium"
-      style={{ transformStyle: "preserve-3d" }}
-    >
+      <span
+        className="vote-digit inline-flex h-7 w-5 items-center justify-center rounded bg-ink-raised font-mono text-sm font-medium"
+        style={{ transformStyle: "preserve-3d" }}
+      >
       {value}
     </span>
   );
@@ -38,11 +39,13 @@ export default function VoteButtons({
   feedbackId,
   initialUpvotes,
   initialDownvotes,
+  initialUserVote,
 }: VoteButtonsProps) {
   const { userVote, optimisticUp, optimisticDown, pending, vote } = useOptimisticVote({
     feedbackId,
     initialUpvotes,
     initialDownvotes,
+    initialUserVote,
   });
   const { addToast } = useToast();
 
@@ -61,6 +64,8 @@ export default function VoteButtons({
     },
     [vote, addToast]
   );
+
+  const totalVotes = optimisticUp + optimisticDown;
 
   return (
     <div className="flex items-center gap-3">
@@ -104,6 +109,18 @@ export default function VoteButtons({
         <span className="font-mono text-sm font-medium text-alert-rust">
           <CountDisplay count={optimisticDown} />
         </span>
+      </div>
+
+      {/* Total votes */}
+      <div className="ml-auto flex items-center gap-1">
+        <div className="flex h-8 w-8 items-center justify-center rounded border border-fog/25 text-graphite">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 2h6M2 5h4M2 8h6" />
+          </svg>
+        </div>
+        <div className="text-paper">
+          <CountDisplay count={totalVotes} />
+        </div>
       </div>
     </div>
   );

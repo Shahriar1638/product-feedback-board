@@ -80,6 +80,7 @@ export default function FeedbackCard({ feedback }: FeedbackCardProps) {
           feedbackId={String(feedback._id)}
           initialUpvotes={feedback.upvotes}
           initialDownvotes={feedback.downvotes}
+          initialUserVote={feedback.userVote}
         />
         <span className="font-mono text-[0.6875rem] text-fog">
           {timeAgo(feedback.createdAt)}

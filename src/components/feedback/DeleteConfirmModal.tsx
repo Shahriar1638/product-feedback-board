@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import { deleteFeedback } from "@/actions/feedback.actions";
@@ -18,7 +17,6 @@ export default function DeleteConfirmModal({
   open,
   onClose,
 }: DeleteConfirmModalProps) {
-  const router = useRouter();
   const [pending, setPending] = useState(false);
   const { addToast } = useToast();
 
@@ -30,11 +28,11 @@ export default function DeleteConfirmModal({
     if (result.success) {
       addToast("Entry removed", "success");
       onClose();
-      router.refresh();
+      window.location.reload();
     } else {
       addToast(result.error || "Failed to delete", "error");
     }
-  }, [feedbackId, onClose, router, addToast]);
+  }, [feedbackId, onClose, addToast]);
 
   return (
     <Modal open={open} onClose={onClose} labelledBy="delete-title">
