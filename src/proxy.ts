@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { checkRateLimit } from "@/lib/utils/rate-limit";
@@ -23,8 +24,7 @@ export function proxy(request: NextRequest) {
   // --- Rate limiting on mutation routes ---
   const { pathname } = request.nextUrl;
   const isMutation =
-    (pathname.startsWith("/api/feedback") && request.method !== "GET") ||
-    pathname === "/api/feedback" && request.method !== "GET";
+    pathname.startsWith("/api/feedback") && request.method !== "GET";
 
   if (isMutation) {
     const voterId =

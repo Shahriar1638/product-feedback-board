@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "motion/react";
 import type { IFeedback } from "@/models/Feedback.model";
 import VoteButtons from "./VoteButtons";
 import DeleteConfirmModal from "./DeleteConfirmModal";
@@ -31,7 +32,12 @@ export default function FeedbackCard({ feedback }: FeedbackCardProps) {
 
   return (
     <>
-      <div className="relative flex flex-col gap-3 rounded-[var(--radius-card)] bg-paper p-5 shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-card-hover)]">
+      <motion.div
+        className="feedback-card relative flex flex-col gap-3 rounded-[var(--radius-card)] bg-paper p-5 shadow-[var(--shadow-card)]"
+        whileHover={{ y: -4, scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
+        transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+      >
         <button
           onClick={() => setDeleteOpen(true)}
           aria-label={`Delete ${feedback.title}`}
@@ -75,7 +81,7 @@ export default function FeedbackCard({ feedback }: FeedbackCardProps) {
             {timeAgo(feedback.createdAt)}
           </span>
         </div>
-      </div>
+      </motion.div>
 
       <DeleteConfirmModal
         feedbackId={String(feedback._id)}

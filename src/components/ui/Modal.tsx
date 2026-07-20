@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { motion, AnimatePresence } from "motion/react";
 
 interface ModalProps {
   open: boolean;
@@ -10,7 +11,6 @@ interface ModalProps {
 }
 
 export default function Modal({ open, onClose, labelledBy, children }: ModalProps) {
-  const overlayRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,11 +45,8 @@ export default function Modal({ open, onClose, labelledBy, children }: ModalProp
     };
 
     document.addEventListener("keydown", handleKeyDown);
-
-    // Focus the panel on open
     panelRef.current?.focus();
 
-    // Lock body scroll
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
@@ -59,26 +56,35 @@ export default function Modal({ open, onClose, labelledBy, children }: ModalProp
     };
   }, [open, onClose]);
 
-  if (!open) return null;
-
   return (
-    <div
-      ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-graphite/60 backdrop-blur-sm"
-      onClick={(e) => {
-        if (e.target === overlayRef.current) onClose();
-      }}
-    >
-      <div
-        ref={panelRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={labelledBy}
-        tabIndex={-1}
-        className="w-full max-w-sm rounded-[var(--radius-card)] bg-paper p-6 shadow-2xl focus:outline-none"
-      >
-        {children}
-      </div>
-    </div>
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-graphite/60 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
+        >
+          <motion.div
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={labelledBy}
+            tabIndex={-1}
+            initial={{ opacity: 0, scale: 0.96, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 8 }}
+            transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full max-w-sm rounded-[var(--radius-card)] bg-paper p-6 shadow-2xl focus:outline-none"
+          >
+            {children}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "motion/react";
 import type { IFeedback } from "@/models/Feedback.model";
 import FeedbackCard from "./FeedbackCard";
 import Skeleton from "@/components/ui/Skeleton";
@@ -25,7 +26,11 @@ export default function FeedbackGrid({ feedbacks, loading }: FeedbackGridProps) 
 
   if (feedbacks.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-24">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col items-center justify-center gap-4 py-24"
+      >
         <p className="font-mono text-lg font-medium uppercase tracking-wider text-fog">
           NO SIGNAL
         </p>
@@ -38,15 +43,26 @@ export default function FeedbackGrid({ feedbacks, loading }: FeedbackGridProps) 
         >
           Clear Filters
         </button>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      {feedbacks.map((fb) => (
-        <FeedbackCard key={String(fb._id)} feedback={fb} />
-      ))}
-    </div>
+    <AnimatePresence mode="popLayout">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {feedbacks.map((fb) => (
+          <motion.div
+            key={String(fb._id)}
+            layout
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.94 }}
+            transition={{ type: "spring", stiffness: 350, damping: 32 }}
+          >
+            <FeedbackCard feedback={fb} />
+          </motion.div>
+        ))}
+      </div>
+    </AnimatePresence>
   );
 }

@@ -3,11 +3,21 @@ import mongoose from "mongoose";
 import { connectDB } from "@/lib/db/connect";
 import Feedback from "@/models/Feedback.model";
 import VoteTracker from "@/models/VoteTracker.model";
+import { hashFallbackId } from "@/lib/utils/identifier";
 
 function parseVoterId(cookieHeader: string | null): string | null {
   if (!cookieHeader) return null;
   const match = cookieHeader.match(/voter_id=([^;]+)/);
   return match?.[1] ?? null;
+}
+
+function resolveIdentifiers(request: Request): { voterId: string; fallbackId: string } | null {
+  const voterId = parseVoterId(request.headers.get("Cookie"));
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "unknown";
+  const userAgent = request.headers.get("user-agent") || "unknown";
+  const fallbackId = hashFallbackId(ip, userAgent);
+  if (!voterId) return null;
+  return { voterId, fallbackId };
 }
 
 export async function POST(
@@ -22,10 +32,11 @@ export async function POST(
       return NextResponse.json({ error: "Invalid feedback ID" }, { status: 400 });
     }
 
-    const voterId = parseVoterId(request.headers.get("Cookie"));
-    if (!voterId) {
+    const ids = resolveIdentifiers(request);
+    if (!ids) {
       return NextResponse.json({ error: "Missing voter identity" }, { status: 400 });
     }
+    const { voterId, fallbackId } = ids;
 
     const body = await request.json();
     const { voteType } = body as { voteType: "up" | "down" };
@@ -36,7 +47,11 @@ export async function POST(
 
     const feedbackId = new mongoose.Types.ObjectId(id);
 
-    const existingTracker = await VoteTracker.findOne({ feedbackId, voterId });
+    // Check both identifiers for existing votes (defense-in-depth per SPEC §2.2)
+    const existingTracker = await VoteTracker.findOne({
+      feedbackId,
+      voterId: { $in: [voterId, fallbackId] },
+    });
 
     if (!existingTracker) {
       // First vote — unique index as lock
@@ -53,7 +68,7 @@ export async function POST(
       const update =
         voteType === "up"
           ? { $inc: { upvotes: 1, voteCount: 1 } }
-          : { $inc: { downvotes: 1, voteCount: 1 } };
+          : { $inc: { downvotes: 1, voteCount: -1 } };
 
       const updated = await Feedback.findByIdAndUpdate(feedbackId, update, { new: true });
       if (!updated) {
@@ -87,8 +102,8 @@ export async function POST(
 
         const oldInc =
           existingTracker.voteType === "up"
-            ? { $inc: { upvotes: -1, downvotes: 1 } }
-            : { $inc: { upvotes: 1, downvotes: -1 } };
+            ? { $inc: { upvotes: -1, downvotes: 1, voteCount: -2 } }
+            : { $inc: { upvotes: 1, downvotes: -1, voteCount: 2 } };
 
         const updated = await Feedback.findByIdAndUpdate(feedbackId, oldInc, {
           new: true,

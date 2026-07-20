@@ -29,7 +29,7 @@ export default function FeedbackFilters() {
     useFeedbackQueryState();
 
   return (
-    <div className="flex flex-col gap-3 border-b border-paper/8 bg-ink-raised px-6 py-4 sm:flex-row sm:items-end">
+    <div className="board-filters flex flex-col gap-3 border-b border-paper/8 bg-ink-raised px-6 py-4 sm:flex-row sm:items-end">
       <div className="flex-1">
         <Input
           placeholder="Search feedback..."

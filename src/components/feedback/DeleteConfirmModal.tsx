@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import { deleteFeedback } from "@/actions/feedback.actions";
+import { useToast } from "@/hooks/useToast";
 
 interface DeleteConfirmModalProps {
   feedbackId: string;
@@ -19,6 +20,7 @@ export default function DeleteConfirmModal({
 }: DeleteConfirmModalProps) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
+  const { addToast } = useToast();
 
   const handleConfirm = useCallback(async () => {
     setPending(true);
@@ -26,16 +28,19 @@ export default function DeleteConfirmModal({
     setPending(false);
 
     if (result.success) {
+      addToast("Entry removed", "success");
       onClose();
       router.refresh();
+    } else {
+      addToast(result.error || "Failed to delete", "error");
     }
-  }, [feedbackId, onClose, router]);
+  }, [feedbackId, onClose, router, addToast]);
 
   return (
     <Modal open={open} onClose={onClose} labelledBy="delete-title">
       <div className="flex flex-col gap-4">
         <h2 id="delete-title" className="font-display text-lg font-semibold text-graphite">
-          Delete Feedback?
+          Remove this entry from the board?
         </h2>
         <p className="font-body text-sm text-graphite/70">
           This action cannot be undone. The feedback and all its votes will be permanently removed.
@@ -45,7 +50,7 @@ export default function DeleteConfirmModal({
             Cancel
           </Button>
           <Button variant="danger" size="sm" onClick={handleConfirm} disabled={pending}>
-            {pending ? "Deleting..." : "Delete"}
+            {pending ? "Removing..." : "Remove"}
           </Button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { connectDB } from "@/lib/db/connect";
 import Feedback from "@/models/Feedback.model";
 import { feedbackQuerySchema } from "@/lib/validations/query.schema";
+import mongoSanitize from "mongo-sanitize";
 import type { QueryFilter } from "mongoose";
 
 export async function GET(request: Request) {
@@ -17,33 +18,35 @@ export async function GET(request: Request) {
     }
 
     const { search, category, priority, sort } = parsed.data;
-    const filter: QueryFilter<typeof Feedback.schema> = {};
+    const filter: Record<string, unknown> = {};
 
     if (category) filter.category = category;
     if (priority) filter.priority = priority;
+
+    const sanitizedFilter = mongoSanitize(filter) as QueryFilter<typeof Feedback.schema>;
 
     let query;
     const isSearch = Boolean(search);
 
     if (isSearch) {
       query = Feedback.find(
-        { ...filter, $text: { $search: search! } },
+        { ...sanitizedFilter, $text: { $search: search! } },
         { score: { $meta: "textScore" } }
       ).sort({ score: { $meta: "textScore" } });
     } else {
       switch (sort) {
         case "trending":
-          query = Feedback.find(filter).sort({ voteCount: -1, createdAt: -1 });
+          query = Feedback.find(sanitizedFilter).sort({ voteCount: -1, createdAt: -1 });
           break;
         case "priority":
-          query = Feedback.find(filter).sort({
+          query = Feedback.find(sanitizedFilter).sort({
             priorityWeight: -1,
             createdAt: -1,
           });
           break;
         case "newest":
         default:
-          query = Feedback.find(filter).sort({ createdAt: -1 });
+          query = Feedback.find(sanitizedFilter).sort({ createdAt: -1 });
           break;
       }
     }

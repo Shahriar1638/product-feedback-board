@@ -1,5 +1,7 @@
 # Prompts that I used in CLI AI AGENT
 
+## MIMO v2.5
+
 1. i have just set up next with tailwind eslint src as code directory and app router . now install zod , mongoose 
 2. just read : "f:\Job Projects\product-feedback-board\AGENTS.md""f:\Job Projects\product-feedback-board\CLAUDE.md""f:\Job Projects\product-feedback-board\SPEC.md". and tell me things that is left to install.
 3. Yes pls
@@ -99,3 +101,13 @@ F:\Job Projects\product-feedback-board> "
 16. now revise phase 2-6. from : "f:\Job Projects\product-feedback-board\TASKS.md".
 17. now phase 7,8,&9
 18. now phase 10
+19. export our chat log.
+
+## Gemini 3.5 Flash :
+
+1. read : "f:\Job Projects\product-feedback-board\DESIGN.md""f:\Job Projects\product-feedback-board\SPEC.md""f:\Job Projects\product-feedback-board\AGENTS.md" and wait for my commands
+2. ok now read : "f:\Job Projects\product-feedback-board\TASKS.md"and verify if i have implmented everything correctly 
+ 
+## deepseek v4 flash max
+
+1. Proceed fixing critical issues

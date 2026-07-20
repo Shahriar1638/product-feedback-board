@@ -26,29 +26,24 @@ export function useOptimisticVote({
   const net = optimisticUp - optimisticDown;
 
   const vote = useCallback(
-    async (voteType: "up" | "down") => {
-      if (pending) return;
+    async (voteType: "up" | "down"): Promise<VoteResult> => {
+      if (pending) return { ok: false };
+
+      // Same vote = no-op (server doesn't support un-voting)
+      if (userVote === voteType) return { ok: true };
 
       const previousVote = userVote;
       const previousUp = optimisticUp;
       const previousDown = optimisticDown;
 
-      // Optimistic update
-      if (userVote === voteType) {
-        // Un-vote (toggle off)
-        setUserVote(null);
-        if (voteType === "up") setOptimisticUp((u) => u - 1);
-        else setOptimisticDown((d) => d - 1);
+      // Optimistic update — new vote or switch
+      setUserVote(voteType);
+      if (voteType === "up") {
+        setOptimisticUp((u) => u + 1);
+        if (userVote === "down") setOptimisticDown((d) => d - 1);
       } else {
-        // New vote or switch
-        setUserVote(voteType);
-        if (voteType === "up") {
-          setOptimisticUp((u) => u + 1);
-          if (userVote === "down") setOptimisticDown((d) => d - 1);
-        } else {
-          setOptimisticDown((d) => d + 1);
-          if (userVote === "up") setOptimisticUp((u) => u - 1);
-        }
+        setOptimisticDown((d) => d + 1);
+        if (userVote === "up") setOptimisticUp((u) => u - 1);
       }
 
       setPending(true);
@@ -66,19 +61,19 @@ export function useOptimisticVote({
           setUserVote(previousVote);
           setOptimisticUp(previousUp);
           setOptimisticDown(previousDown);
-          return { ok: false, status: res.status } as VoteResult;
+          return { ok: false, status: res.status };
         }
 
         // Sync with server state
         setOptimisticUp(data.upvotes);
         setOptimisticDown(data.downvotes);
-        return { ok: true } as VoteResult;
+        return { ok: true };
       } catch {
         // Rollback on network error
         setUserVote(previousVote);
         setOptimisticUp(previousUp);
         setOptimisticDown(previousDown);
-        return { ok: false } as VoteResult;
+        return { ok: false };
       } finally {
         setPending(false);
       }
