@@ -1,0 +1,28 @@
+interface RateLimitEntry {
+  count: number;
+  resetAt: number;
+}
+
+const store = new Map<string, RateLimitEntry>();
+
+export function checkRateLimit(
+  key: string,
+  limit: number,
+  windowMs: number
+): { allowed: boolean; remaining: number; retryAfterMs: number } {
+  const now = Date.now();
+  const entry = store.get(key);
+
+  if (!entry || now > entry.resetAt) {
+    store.set(key, { count: 1, resetAt: now + windowMs });
+    return { allowed: true, remaining: limit - 1, retryAfterMs: 0 };
+  }
+
+  if (entry.count >= limit) {
+    const retryAfterMs = entry.resetAt - now;
+    return { allowed: false, remaining: 0, retryAfterMs };
+  }
+
+  entry.count++;
+  return { allowed: true, remaining: limit - entry.count, retryAfterMs: 0 };
+}

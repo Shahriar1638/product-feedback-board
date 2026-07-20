@@ -1,26 +1,128 @@
 @import "tailwindcss";
 
+/* ─── Design Tokens (DESIGN.md §1) ─── */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Color */
+  --ink: #10141C;
+  --ink-raised: #171C26;
+  --paper: #F5F1E6;
+  --graphite: #22242B;
+  --fog: #8B93A7;
+  --signal-amber: #E8A33D;
+  --current-teal: #3FC1B0;
+  --alert-rust: #C25A45;
+
+  /* Motion (DESIGN.md §1.4) */
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-emphasis: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --dur-micro: 120ms;
+  --dur-standard: 260ms;
+  --dur-deliberate: 480ms;
+
+  /* Elevation (DESIGN.md §1.3) */
+  --shadow-card: 0 1px 2px rgba(16, 20, 28, 0.35), 0 1px 1px rgba(16, 20, 28, 0.2);
+  --shadow-card-hover: 0 12px 24px -8px rgba(16, 20, 28, 0.5), 0 4px 8px -4px rgba(16, 20, 28, 0.3);
+  --shadow-modal: 0 24px 48px -12px rgba(16, 20, 28, 0.6);
+
+  /* Spacing scale (DESIGN.md §1.3) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Radius (DESIGN.md §1.3) */
+  --radius-card: 12px;
+  --radius-button: 8px;
+  --radius-badge: 999px;
+  --radius-modal: 16px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Colors → Tailwind utilities */
+  --color-ink: var(--ink);
+  --color-ink-raised: var(--ink-raised);
+  --color-paper: var(--paper);
+  --color-graphite: var(--graphite);
+  --color-fog: var(--fog);
+  --color-signal-amber: var(--signal-amber);
+  --color-current-teal: var(--current-teal);
+  --color-alert-rust: var(--alert-rust);
+
+  /* Fonts → Tailwind font-family utilities */
+  --font-display: var(--font-space-grotesk), "Space Grotesk", sans-serif;
+  --font-body: var(--font-general-sans), "General Sans", sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), "IBM Plex Mono", monospace;
+
+  /* Spacing → Tailwind spacing utilities */
+  --spacing-1: var(--space-1);
+  --spacing-2: var(--space-2);
+  --spacing-3: var(--space-3);
+  --spacing-4: var(--space-4);
+  --spacing-6: var(--space-6);
+  --spacing-8: var(--space-8);
+  --spacing-12: var(--space-12);
+  --spacing-16: var(--space-16);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ─── Base ─── */
+
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body), "General Sans", sans-serif;
+}
+
+/* ─── Focus Ring (DESIGN.md §5) ─── */
+
+:focus-visible {
+  outline: 2px solid var(--signal-amber);
+  outline-offset: 2px;
+}
+
+/* ─── Skeleton Shimmer (DESIGN.md §4.6) ─── */
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(245, 241, 230, 0.06) 25%,
+    rgba(245, 241, 230, 0.12) 50%,
+    rgba(245, 241, 230, 0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+/* ─── Scrollbar (subtle, ink-toned) ─── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ink);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 147, 167, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 147, 167, 0.5);
 }
